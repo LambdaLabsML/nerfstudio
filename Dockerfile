@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ## Set timezone as it is required by some packages.
 ENV TZ=Europe/Berlin
 ## CUDA architectures, required by tiny-cuda-nn.
-ENV TCNN_CUDA_ARCHITECTURES=86
+ENV TCNN_CUDA_ARCHITECTURES="80;86"
 ## CUDA Home, required to find CUDA in some packages.
 ENV CUDA_HOME="/usr/local/cuda"
 
@@ -67,7 +67,7 @@ RUN git clone --branch 2.1.0 https://ceres-solver.googlesource.com/ceres-solver.
     rm -r ceres-solver
 
 # Install colmap.
-RUN git clone --branch 3.7 https://github.com/colmap/colmap.git --single-branch && \
+RUN git clone --branch dev https://github.com/colmap/colmap.git --single-branch && \
     cd colmap && \
     mkdir build && \
     cd build && \
@@ -105,6 +105,19 @@ USER 1000:1000
 RUN cd nerfstudio && \
     python3.8 -m pip install -e . && \
     cd ..
+
+# install Cython
+RUN python3.8 -m pip install Cython
+
+# Install localtunnel
+USER root
+RUN apt install curl && \
+    apt install -y npm && \
+    curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh && \
+    bash /tmp/nodesource_setup.sh && \
+    apt install -y nodejs && \
+    npm install -g localtunnel
+USER 1000:1000
 
 # Change working directory
 WORKDIR /workspace
